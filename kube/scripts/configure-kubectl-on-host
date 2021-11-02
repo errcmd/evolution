@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -euo pipefail
+
+readonly dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+kubectl config set-cluster kubevagrant \
+  --certificate-authority="${dir}/../certificates/ca.pem" \
+  --embed-certs=true \
+  --server=https://192.168.199.40:6443
+
+kubectl config set-credentials admin \
+  --client-certificate="${dir}/../certificates/admin.pem" \
+  --client-key="${dir}/../certificates/admin-key.pem"
+
+kubectl config set-context kubevagrant \
+  --cluster=kubevagrant \
+  --user=admin
+
+kubectl config use-context kubevagrant

@@ -1,0 +1,26 @@
+for i in {0..2}; do
+  cat <<EOF | vagrant ssh "worker-${i}" -- sudo bash
+  rm -rf "/opt/kafka-${i}/*"
+  mkdir -p "/opt/zoo-${i}"
+  mkdir -p "/opt/kafka-${i}"
+  rm -rf "/opt/zoo-${i}/*"
+EOF
+done
+
+for i in {0..2}; do
+  cat <<EOF | vagrant ssh "controller-${i}" -- sudo bash
+  #cp /vagrant/config/controller-${i}-kube-apiserver.service /etc/systemd/system/kube-apiserver.service
+  #cp /vagrant/config/controller-${i}-kube-scheduler.service /etc/systemd/system/kube-scheduler.service
+  #systemctl daemon-reload
+  #services="kube-apiserver kube-scheduler"
+  systemctl restart ${services}
+EOF
+done
+
+for i in {0..2}; do
+  cat <<EOF | vagrant ssh "worker-${i}" -- sudo bash
+  cp "/vagrant/config/worker-${i}-kubelet.service" /etc/systemd/system/kubelet.service
+  systemctl daemon-reload
+  systemctl restart kubelet
+EOF
+done

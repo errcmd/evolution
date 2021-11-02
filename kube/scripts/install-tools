@@ -1,0 +1,61 @@
+#!/bin/bash
+
+#set -euo pipefail
+
+readonly dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly tmpdir=$(mktemp -d /tmp/kubernetes-the-hard-way-XXXXXX)
+mkdir -p "${tmpdir}"
+
+readonly binary_format=amd64
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  readonly binary_platform=linux
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  readonly binary_platform=darwin
+fi
+
+pushd "${tmpdir}"
+trap 'popd; rm -rf "${tmpdir}"' EXIT
+
+# shellcheck source=versions.bash
+source "${dir}/versions.bash"
+
+#checking golang is installed
+go version 2>&1 >/dev/null
+GO_IS_AVAILABLE=$?
+if [ $GO_IS_AVAILABLE -ne 0 ]
+then
+echo "Go installation"
+wget -q -O - https://raw.githubusercontent.com/canha/golang-tools-install-script/master/goinstall.sh | bash
+source ~/.bashrc
+fi
+
+#checking cloudflare ssl is installed
+cfssl version 2>&1 >/dev/null
+CFSSL_IS_AVAILABLE=$?
+if [ $CFSSL_IS_AVAILABLE -ne 0 ]
+then
+echo "CloudFlare ssl utils installation"
+
+curl -sSL \
+  -O "https://github.com/cloudflare/cfssl/releases/download/v${cfssl_version}/cfssl_${cfssl_version}_${binary_platform}_${binary_format}" \
+  -O "https://github.com/cloudflare/cfssl/releases/download/v${cfssl_version}/cfssljson_${cfssl_version}_${binary_platform}_${binary_format}"
+
+chmod +x cfssl_${cfssl_version}_${binary_platform}_${binary_format} cfssljson_${cfssl_version}_${binary_platform}_${binary_format}
+
+sudo mv -v cfssl_${cfssl_version}_${binary_platform}_${binary_format} /usr/local/bin/cfssl
+sudo mv -v cfssljson_${cfssl_version}_${binary_platform}_${binary_format} /usr/local/bin/cfssljson
+fi
+
+#checkin kubectl is installed
+if [ ! -f /usr/local/bin/kubectl ]
+then
+
+echo "Kubectl installation"
+
+curl -ssL \
+  -O "https://storage.googleapis.com/kubernetes-release/release/${k8s_version}/bin/${binary_platform}/${binary_format}/kubectl"
+
+chmod +x kubectl
+
+sudo mv -v kubectl /usr/local/bin/
+fi

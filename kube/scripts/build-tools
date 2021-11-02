@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#set -euo pipefail
+
+readonly dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+pushd "${dir}/../"
+trap 'popd' EXIT
+
+#checking git is installed
+git --version 2>&1 >/dev/null
+GIT_IS_AVAILABLE=$?
+if [ $GIT_IS_AVAILABLE -ne 0 ]
+then
+echo "Git is missing. Please install git before running this script"
+exit 1
+fi
+
+echo "Installing prerequisites..."
+#checking golang is installed
+go version 2>&1 >/dev/null
+GO_IS_AVAILABLE=$?
+if [ $GO_IS_AVAILABLE -ne 0 ]
+then
+echo "Go installation"
+wget -q -O - https://raw.githubusercontent.com/canha/golang-tools-install-script/master/goinstall.sh | bash
+source ~/.bashrc
+fi
+
+#checking cloudflare ssl is installed
+cfssl version 2>&1 >/dev/null
+CFSSL_IS_AVAILABLE=$?
+if [ $CFSSL_IS_AVAILABLE -ne 0 ]
+then
+echo "CloudFlare ssl utils installation"
+git clone -b 'v1.6.1' --single-branch --depth 1 https://github.com/cloudflare/cfssl.git
+cd cfssl/
+make
+cd bin/
+/usr/local/bin
+cfssl version
+./cfssl version
+./cfssljson --version
+fi

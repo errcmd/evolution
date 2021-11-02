@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -euo pipefail
+
+readonly dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+pushd "${dir}/../"
+trap 'popd' EXIT
+
+rm -vfr tools/*
+
+rm -vf certificates/*pem
+rm -vf certificates/*csr
+
+rm -vf config/*kubeconfig
+rm -vf config/worker-*
+rm -vf config/controller-*
+
+#remove build-tools part
+rm -vfr cfssl
+
+#remove conf and service files
+
+
+
+#remove installed tools in /usr/local/bin
+while true; do
+    read -p "Do you wish to remove installed tools in /usr/local/bin" yn
+    case $yn in
+        [Yy]* ) rm -vf /usr/local/bin/cfssl; \
+                rm -vf /usr/local/bin/cfssljson; \
+                rm -vf /usr/local/bin/kubectl; \
+                break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
