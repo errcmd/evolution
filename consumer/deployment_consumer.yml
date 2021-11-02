@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer-deployment
+  labels:
+    app: consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+    spec:
+      containers:
+      - name: consumer
+        image: errcmd/python_consumer:0.2
+        imagePullPolicy: Always
+        env:
+        - name: KAFKA_SERVICE
+          value: "kf-kafka"
+        ports:
+        - containerPort: 8000
+          name: metrics
+          protocol: TCP

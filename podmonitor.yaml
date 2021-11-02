@@ -1,0 +1,29 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: producer-monitoring
+  labels:
+    app: producer
+spec:
+  selector:
+    matchLabels:
+      app: producer
+  podMetricsEndpoints:
+  - port: metrics
+    interval: 10s
+    path: "/"
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: consumer-monitoring
+  labels:
+    app: consumer
+spec:
+  selector:
+    matchLabels:
+      app: consumer
+  podMetricsEndpoints:
+  - port: metrics
+    interval: 10s
+    path: "/"
