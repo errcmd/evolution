@@ -3,6 +3,7 @@
 set -euo pipefail
 
 readonly dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+echo "Generate-certs/generate-worker-certs is executing now"
 
 pushd "${dir}/../certificates"
 trap 'popd' EXIT

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #set -euo pipefail
+echo "Install-tools is executing now"
 
 readonly dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly tmpdir=$(mktemp -d /tmp/kubernetes-the-hard-way-XXXXXX)

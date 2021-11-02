@@ -14,12 +14,14 @@ Vagrant.configure("2") do |config|
       c.vm.hostname = "lb-0"
       c.vm.network "private_network", ip: "192.168.199.40"
 
-      c.vm.provision :shell, :path => "kube/scripts/vagrant-setup-haproxy.bash"
+      c.vm.provision "hapr", type: "shell", path: "kube/scripts/vagrant-setup-haproxy.bash", run: "once"
+      c.vm.provision "init", type: "shell", inline: "/bin/bash /vagrant/kube/scripts/setup-evo", run: "never"
 
       c.vm.provider "virtualbox" do |vb|
         vb.memory = "512"
       end
   end
+
 
    # only 2 controllers instead of 3 because not enough RAM on laptop, if RAM > 16 feel free to change to 3
   (0..1).each do |n|
@@ -27,7 +29,7 @@ Vagrant.configure("2") do |config|
         c.vm.hostname = "controller-#{n}"
         c.vm.network "private_network", ip: "192.168.199.1#{n}"
 
-        c.vm.provision :shell, :path => "kube/scripts/vagrant-setup-hosts-file.bash"
+        c.vm.provision :shell, :path => "kube/scripts/vagrant-setup-hosts-file.bash", run: "always"
 
         c.vm.provider "virtualbox" do |vb|
           vb.memory = "1536"
@@ -41,8 +43,8 @@ Vagrant.configure("2") do |config|
         c.vm.hostname = "worker-#{n}"
         c.vm.network "private_network", ip: "192.168.199.2#{n}"
 
-        c.vm.provision :shell, :path => "kube/scripts/vagrant-setup-routes.bash"
-        c.vm.provision :shell, :path => "kube/scripts/vagrant-setup-hosts-file.bash"
+        c.vm.provision :shell, :path => "kube/scripts/vagrant-setup-routes.bash", run: "once"
+        c.vm.provision :shell, :path => "kube/scripts/vagrant-setup-hosts-file.bash", run: "once"
     end
   end
 
@@ -50,7 +52,7 @@ Vagrant.configure("2") do |config|
       c.vm.hostname = "traefik-0"
       c.vm.network "private_network", ip: "192.168.199.30"
 
-      c.vm.provision :shell, :path => "kube/scripts/vagrant-setup-routes.bash"
+      c.vm.provision :shell, :path => "kube/scripts/vagrant-setup-routes.bash", run: "once"
 
       c.vm.provider "virtualbox" do |vb|
         vb.memory = "512"
